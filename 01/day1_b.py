@@ -1,5 +1,4 @@
 import re
-filepath = '01/day1_input.txt'
 
 NUMBERS = {'one': 1,
            'two': 2,
@@ -11,68 +10,53 @@ NUMBERS = {'one': 1,
            'eight': 8,
            'nine': 9}
 
-def checknumbers(text):
-    index = 10000
-    first = ''
-    for n in NUMBERS.keys():
-        res = re.search(r"%s" %n, text)
-        if res is not None:
-            if res.start() < index:
-                index = res.start()
-                first = res.group()
-    return first, index
+def checkdigit(line, reverse):
+    index = float('inf')
+    num = ''
 
-def checknumbersRev(text):
-    index = 10000
-    first = ''
-    for n in NUMBERS.keys():
-        n_rev= n[::-1]
-        res = re.search(r"%s" %n_rev, text)
-        if res is not None:
-            if res.start() < index:
-                index = res.start()
-                first = res.group()
-    return first, index
+    # check for digit numbers
+    for i in range(0, len(line)):
+        if line[i].isdigit():
+            index = i
+            num = line[i]
+            break
         
-def checkdigit(text):
-    for i in range(0, len(text)):
-            if text[i].isdigit():
-                return text[i], i
-    return '', 10000
+    # check for string numbers
+    for n in NUMBERS.keys():
+        if reverse:
+            n = n[::-1]
+        res = re.search(r"%s" %n, line)
+        if res is not None:
+            if res.start() < index:
+                index = res.start()
+                num = res.group()
+    return num
 
-def main():       
+def main():
+    filepath = '01/day1_input.txt'
     with open(filepath) as f:
         lines = f.read().splitlines() 
     
-    #print(lines)
-
-    total = 0
+    result = 0
     for l in lines:
         temp = ""
-        text1, idx1 = checkdigit(l)
-        text2, idx2 = checknumbers(l)
 
-        if int(idx1) < idx2:
-            #print(text1)
-            temp += text1
-        else:
-            #print(text2)
-            temp += str(NUMBERS.get(text2))
+        # first digit
+        first = checkdigit(l, reverse=False)
+        if first.isdigit():
+            temp += first
+        else: 
+            temp += str(NUMBERS.get(first))
 
-        text1, idx1 = checkdigit(l[::-1])
-        text2, idx2 = checknumbersRev(l[::-1])
+        # last digit
+        last = checkdigit(l[::-1], reverse=True)
+        if last.isdigit():
+            temp += last
+        else: 
+            temp += str(NUMBERS.get(last[::-1]))
 
-        if int(idx1) < idx2:
-            #print(text1)
-            temp += text1
-        else:
-            #print(text2[::-1])
-            temp += str(NUMBERS.get(text2[::-1]))
-
-        #print(int(temp))
-        total += int(temp)
-
-    print(total)
+        result += int(temp)    
+    print(result)
 
 if __name__ == "__main__":
     main()
